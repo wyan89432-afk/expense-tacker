@@ -18,7 +18,8 @@ CREATE TABLE categories (
   type VARCHAR(10) NOT NULL CHECK (type IN ('income', 'expense')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  CONSTRAINT categories_user_name_type_unique UNIQUE (user_id, name, type)
+  CONSTRAINT categories_user_name_type_unique UNIQUE (user_id, name, type),
+  CONSTRAINT categories_user_id_id_unique UNIQUE (user_id, id)
 );
 
 CREATE INDEX categories_user_id_idx ON categories (user_id);
@@ -26,7 +27,7 @@ CREATE INDEX categories_user_id_idx ON categories (user_id);
 CREATE TABLE transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  category_id UUID REFERENCES categories(id) ON DELETE SET NULL,
+  category_id UUID,
   type VARCHAR(10) NOT NULL CHECK (type IN ('income', 'expense')),
   amount NUMERIC(19, 2) NOT NULL CHECK (amount >= 0),
   currency CHAR(3) NOT NULL DEFAULT 'MMK' CHECK (currency ~ '^[A-Z]{3}$'),
@@ -54,6 +55,12 @@ CREATE TABLE settings (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   CONSTRAINT settings_user_unique UNIQUE (user_id)
 );
+
+ALTER TABLE transactions
+  ADD CONSTRAINT transactions_user_category_fk
+  FOREIGN KEY (user_id, category_id)
+  REFERENCES categories (user_id, id)
+  ON DELETE SET NULL (category_id);
 
 CREATE OR REPLACE FUNCTION set_updated_at()
 RETURNS TRIGGER AS $$
