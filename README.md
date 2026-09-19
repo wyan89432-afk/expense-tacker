@@ -82,9 +82,32 @@ cd frontend && npm run build
 cd backend && npm run build
 ```
 
-## Phase 2
+## Phase 2 — PostgreSQL database
 
-Phase 2 can add the real data layer and authentication: PostgreSQL migrations/schema, user registration/login, password hashing, JWT sessions, protected API routes, transaction CRUD, validation, and secure error handling.
+Phase 2 adds the PostgreSQL schema and migration tooling.
+
+Tables:
+- users
+- categories
+- transactions
+- settings
+
+From `backend/`:
+
+```bash
+npm install
+npm run migrate
+```
+
+Optional development seed:
+
+```bash
+npm run db:seed
+```
+
+Database credentials are supplied through `DATABASE_URL`; no database password is stored in source code.
+
+Phase 3 can build authentication and real API CRUD on top of this schema.
 
 ## Environment
 
